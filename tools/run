@@ -30,7 +30,7 @@ dev() {
     log "dev"
     check_air
     check_dir
-    env DISCORD_AUTH="${cat ../.auth}" \
+    env DISCORD_AUTH=$(cat ./.auth) \
         air
 }
 
