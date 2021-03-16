@@ -53,7 +53,7 @@ func Initalize(s *discordgo.Session) {
 						},
 						{
 							Name:  "⏲️ Duration",
-							Value: "The server was out for: " + time.Now().Sub(lastUptime).Round(time.Second).String(),
+							Value: "The server was out for: " + time.Since(lastUptime).Round(time.Second).String(),
 						},
 						{
 							Name:  "💡 Note",
@@ -64,7 +64,7 @@ func Initalize(s *discordgo.Session) {
 				}
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage)
 				log.Print("Server is back online")
-				log.Print("It took " + time.Now().Sub(lastUptime).Round(time.Second).String())
+				log.Print("It took " + time.Since(lastUptime).Round(time.Second).String())
 			}
 			isUpLastTime = conn != nil
 			time.Sleep(time.Second * 5)
