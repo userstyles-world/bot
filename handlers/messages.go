@@ -2,7 +2,7 @@ package handlers
 
 import "github.com/bwmarrin/discordgo"
 
-func onMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
+func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}

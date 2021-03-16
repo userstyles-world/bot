@@ -7,6 +7,8 @@ import (
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+
+	"bot/handlers"
 )
 
 func Initalize(Token string) {
@@ -16,7 +18,7 @@ func Initalize(Token string) {
 		return
 	}
 
-	discord.AddHandler(handlers.onMessage)
+	discord.AddHandler(handlers.OnMessage)
 
 	discord.Identify.Intents = discordgo.IntentsGuildMessages
 
