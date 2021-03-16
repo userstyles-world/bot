@@ -1,17 +1,22 @@
 package handlers
 
-import "github.com/bwmarrin/discordgo"
+import (
+	"strings"
+
+	"github.com/bwmarrin/discordgo"
+)
 
 func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
 
-	if m.Content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+	if !strings.HasPrefix(m.Content, "&") {
+		return
 	}
+	content := strings.TrimPrefix(m.Content, "&")
 
-	if m.Content == "pong" {
-		s.ChannelMessageSend(m.ChannelID, "Ping!")
+	if content == "ping" {
+		s.ChannelMessageSend(m.ChannelID, "Pong!")
 	}
 }
