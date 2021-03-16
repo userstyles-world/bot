@@ -1,9 +1,11 @@
 package main
 
 import (
-	"fmt"
+	"os"
+
+	"bot/discord"
 )
 
 func main() {
-	fmt.Println("bot")
+	discord.Initalize(os.Getenv("DISCORD_AUTH"))
 }
