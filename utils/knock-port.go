@@ -23,7 +23,7 @@ func Initalize(s *discordgo.Session) {
 					Fields: []*discordgo.MessageEmbedField{
 						{
 							Name:  "📖 Current Status",
-							Value: "UserStyles.world is currently offline. 🔴",
+							Value: "UserStyles.world is currently offline.",
 						},
 						{
 							Name:  "❓ Help",
@@ -34,7 +34,6 @@ func Initalize(s *discordgo.Session) {
 							Value: "Most of the time, this means the server is updating and should take a couple of minutes.",
 						},
 					},
-					Description: "https://www.v1.userstyles.world/",
 				}
 
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage)
@@ -49,7 +48,7 @@ func Initalize(s *discordgo.Session) {
 					Fields: []*discordgo.MessageEmbedField{
 						{
 							Name:  "📖 Current Status",
-							Value: "UserStyles.world is currently back online! 🟢",
+							Value: "UserStyles.world is currently back online!",
 						},
 						{
 							Name:  "⏲️ Duration",
@@ -59,8 +58,11 @@ func Initalize(s *discordgo.Session) {
 							Name:  "💡 Note",
 							Value: "Thank you for being patient.",
 						},
+						{
+							Name:  "🖥️ Website",
+							Value: "https://www.v1.userstyles.world/",
+						},
 					},
-					Description: "https://www.v1.userstyles.world/",
 				}
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage)
 				log.Print("Server is back online")
