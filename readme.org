@@ -1,0 +1,3 @@
+* Bot
+
+Utility bot to check the server status in multiple ways.
