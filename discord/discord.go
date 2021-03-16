@@ -9,6 +9,7 @@ import (
 	"github.com/bwmarrin/discordgo"
 
 	"bot/handlers"
+	"bot/utils"
 )
 
 func Initalize(Token string) {
@@ -27,6 +28,7 @@ func Initalize(Token string) {
 		fmt.Println("Wanted to open an connection to discord, but caught error:", err)
 		return
 	}
+	utils.Initalize(discord)
 
 	fmt.Println("USw's Guardian is now running. Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
