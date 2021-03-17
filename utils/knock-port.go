@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"log"
 	"net"
 	"time"
 
@@ -9,14 +8,12 @@ import (
 )
 
 var port = ":3000"
-var isUpLastTime = true
-var lastUptime time.Time
 
 func Initalize(s *discordgo.Session) {
 	go func() {
 		for {
 			conn, _ := net.DialTimeout("tcp", port, time.Second*4)
-			if conn == nil && isUpLastTime {
+			if conn == nil && !IsDown {
 				embedMessage := &discordgo.MessageEmbed{
 					Title: "📜 Server Status",
 					Color: 0xe74c3c,
@@ -37,11 +34,10 @@ func Initalize(s *discordgo.Session) {
 				}
 
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage)
-				log.Print("Server isn't alive")
-				lastUptime = time.Now()
-				isUpLastTime = false
+				LastUptime = time.Now()
+				IsDown = true
 			}
-			if conn != nil && !isUpLastTime {
+			if conn != nil && IsDown {
 				embedMessage := &discordgo.MessageEmbed{
 					Title: "📜 Server Status",
 					Color: 0x2ecc71,
@@ -52,7 +48,7 @@ func Initalize(s *discordgo.Session) {
 						},
 						{
 							Name:  "⏲️ Duration",
-							Value: "The server was out for: " + time.Since(lastUptime).Round(time.Second).String(),
+							Value: "The server was out for: " + time.Since(LastUptime).Round(time.Second).String(),
 						},
 						{
 							Name:  "💡 Note",
@@ -65,10 +61,9 @@ func Initalize(s *discordgo.Session) {
 					},
 				}
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage)
-				log.Print("Server is back online")
-				log.Print("It took " + time.Since(lastUptime).Round(time.Second).String())
+				LastUptime = time.Now()
 			}
-			isUpLastTime = conn != nil
+			IsDown = conn == nil
 			time.Sleep(time.Second * 5)
 		}
 	}()
