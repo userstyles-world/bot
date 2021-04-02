@@ -29,9 +29,9 @@ func Initalize(s *discordgo.Session) {
 					SetTitle("📜 Server Status").
 					SetColor(0x2ecc71).
 					AddField("📖 Current Status", "UserStyles.world is currently back online!").
-					AddField("⏲️ Duration", "The server was out for: " + time.Since(LastUptime).Round(time.Second).String()).
+					AddField("⏲️ Duration", "The server was out for: "+time.Since(LastUptime).Round(time.Second).String()).
 					AddField("💡 Note", "Thank you for being patient.").
-					AddField("🖥️ Website", "https://www.v1.userstyles.world/")
+					AddField("🖥️ Website", "https://userstyles.world/")
 				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
 				LastUptime = time.Now()
 			}
