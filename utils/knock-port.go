@@ -4,27 +4,40 @@ import (
 	"bot/modules/config"
 	"bot/modules/session"
 	"log"
-	"net"
+	"os"
 	"os/exec"
+	"regexp"
+	"strconv"
 	"time"
+)
+
+var (
+	ssPIDRegex = regexp.MustCompile(`pid=\d+`)
 )
 
 // Get the current PID that's listening on the defined port.
 func getPID() (string, error) {
-	command := exec.Command("lsof", "-n", "sport = :"+config.ServerPort, "|", "grep", "-Po", "(?<=pid=)\\d+")
+	command := exec.Command("ss", "-lptn", "sport = :"+config.ServerPort)
 	output, err := command.Output()
 	if err != nil {
 		return "", err
 	}
-	return string(output), nil
+	PID := ssPIDRegex.Find(output)
+	if len(PID) == 0 {
+		return "", nil
+	}
+	// remove the PID from the output
+	return string(PID[4 : len(PID)-1]), nil
 }
 
 func Initalize() {
-	log.Println(getPID())
 	go func() {
 		for {
-			conn, _ := net.Dial("tcp", config.ServerPort)
-			if conn == nil && !IsDown {
+			pid, err := getPID()
+			if err != nil {
+				log.Println(err)
+			}
+			if pid == "" && !IsDown {
 				embedMessage := NewEmbed().
 					SetTitle("📜 Server Status").
 					SetColor(0xe74c3c).
@@ -35,7 +48,7 @@ func Initalize() {
 				LastUptime = time.Now()
 				IsDown = true
 			}
-			if conn != nil && IsDown {
+			if pid != "" && IsDown {
 				embedMessage := NewEmbed().
 					SetTitle("📜 Server Status").
 					SetColor(0x2ecc71).
@@ -46,8 +59,27 @@ func Initalize() {
 				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
 				LastUptime = time.Now()
 			}
-			IsDown = conn == nil
-			time.Sleep(time.Second * 1)
+			IsDown = pid == ""
+			if IsDown {
+				for {
+					if maybePID, _ := getPID(); maybePID != "" {
+						break
+					}
+					time.Sleep(time.Second)
+				}
+			} else {
+				processID, err := strconv.Atoi(pid)
+				if err != nil {
+					log.Println("couldn't convert PID", err)
+					return
+				}
+				process, err := os.FindProcess(processID)
+				if err != nil {
+					log.Println("couldn't find process", err)
+					return
+				}
+				process.Wait()
+			}
 		}
 	}()
 }
