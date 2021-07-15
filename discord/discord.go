@@ -14,7 +14,7 @@ import (
 	"bot/utils"
 )
 
-func Initalize() {
+func Initialize() {
 	discord, err := discordgo.New("Bot " + config.DiscordAuth)
 	if err != nil {
 		fmt.Println("Wanted to create a new session, but caught error:", err)
