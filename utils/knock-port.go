@@ -12,7 +12,7 @@ var port = ":3000"
 func Initalize(s *discordgo.Session) {
 	go func() {
 		for {
-			conn, _ := net.Dial("tcp", port)
+			conn, _ := net.Dial("tcp", config.ServerPort)
 			if conn == nil && !IsDown {
 				embedMessage := NewEmbed().
 					SetTitle("📜 Server Status").

@@ -9,11 +9,12 @@ import (
 	"github.com/bwmarrin/discordgo"
 
 	"bot/handlers"
+	"bot/modules/config"
 	"bot/utils"
 )
 
-func Initalize(Token string) {
-	discord, err := discordgo.New("Bot " + Token)
+func Initalize() {
+	discord, err := discordgo.New("Bot " + config.DiscordAuth)
 	if err != nil {
 		fmt.Println("Wanted to create a new session, but caught error:", err)
 		return
