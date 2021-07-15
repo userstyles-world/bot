@@ -1,15 +1,26 @@
 package utils
 
 import (
+	"bot/modules/config"
+	"bot/modules/session"
+	"log"
 	"net"
+	"os/exec"
 	"time"
-
-	"github.com/bwmarrin/discordgo"
 )
 
-var port = ":3000"
+// Get the current PID that's listening on the defined port.
+func getPID() (string, error) {
+	command := exec.Command("lsof", "-n", "sport = :"+config.ServerPort, "|", "grep", "-Po", "(?<=pid=)\\d+")
+	output, err := command.Output()
+	if err != nil {
+		return "", err
+	}
+	return string(output), nil
+}
 
-func Initalize(s *discordgo.Session) {
+func Initalize() {
+	log.Println(getPID())
 	go func() {
 		for {
 			conn, _ := net.Dial("tcp", config.ServerPort)
@@ -20,7 +31,7 @@ func Initalize(s *discordgo.Session) {
 					AddField("📖 Current Status", "UserStyles.world is currently offline.").
 					AddField("❓ Help", "Please be patient, admins are looking into it.").
 					AddField("💡 Duration", "Most of the time, this means the server is updating and should take a couple of minutes.")
-				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
 				LastUptime = time.Now()
 				IsDown = true
 			}
@@ -32,7 +43,7 @@ func Initalize(s *discordgo.Session) {
 					AddField("⏲️ Duration", "The server was out for: "+time.Since(LastUptime).Round(time.Second).String()).
 					AddField("💡 Note", "Thank you for being patient.").
 					AddField("🖥️ Website", "https://userstyles.world/")
-				s.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
 				LastUptime = time.Now()
 			}
 			IsDown = conn == nil
