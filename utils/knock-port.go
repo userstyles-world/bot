@@ -9,22 +9,28 @@ import (
 	"regexp"
 	"strconv"
 	"time"
+	"errors"
 )
 
 var (
 	ssPIDRegex = regexp.MustCompile(`pid=\d+`)
+	ErrNoPIDFound = errors.New("Could not get PID")
 )
 
 // Get the current PID that's listening on the defined port.
 func getPID() (string, error) {
+	// ss -lptn "sport = :PORT"
 	command := exec.Command("ss", "-lptn", "sport = :"+config.ServerPort)
 	output, err := command.Output()
 	if err != nil {
-		return "", err
+		return "", ErrNoPIDFound
 	}
+	// Extract the pid=12345 part of the output.
 	PID := ssPIDRegex.Find(output)
-	if len(PID) == 0 {
-		return "", nil
+
+	// E.g. PID = "pid=" or ""
+	if len(PID) == 0 || len(PID) <= 4 {
+		return "", ErrNoPIDFound
 	}
 	// remove the PID from the output
 	return string(PID[4 : len(PID)-1]), nil
