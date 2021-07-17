@@ -3,17 +3,17 @@ package utils
 import (
 	"bot/modules/config"
 	"bot/modules/session"
+	"errors"
 	"log"
 	"os"
 	"os/exec"
 	"regexp"
 	"strconv"
 	"time"
-	"errors"
 )
 
 var (
-	ssPIDRegex = regexp.MustCompile(`pid=\d+`)
+	ssPIDRegex    = regexp.MustCompile(`pid=\d+`)
 	ErrNoPIDFound = errors.New("Could not get PID")
 )
 

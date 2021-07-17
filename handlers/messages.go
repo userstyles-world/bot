@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"fmt"
+	"log"
+	"os/exec"
 	"strings"
 	"time"
 
@@ -18,16 +20,50 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		return
 	}
 	content := strings.TrimPrefix(m.Content, utils.Prefix)
+	args := strings.Split(content, " ")
 
-	if content == "ping" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
-	}
-	if content == "uptime" {
+	var err error
+	switch args[0] {
+	case "ping":
+		_, err = s.ChannelMessageSend(m.ChannelID, "Pong!")
+	case "help":
+		_, err = s.ChannelMessageSend(m.ChannelID, "`ping` - pings the bot\n`uptime` - shows bot uptime\n`help` - shows this message")
+	case "uptime":
 		uptime := time.Since(utils.LastUptime).Round(time.Second).String()
 		if utils.IsDown {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Server has been **offline** for %s.", uptime))
+			_, err = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Server has been **offline** for %s.", uptime))
 		} else {
-			s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Server has been **online** for %s.", uptime))
+			_, err = s.ChannelMessageSend(m.ChannelID, fmt.Sprintf("Server has been **online** for %s.", uptime))
 		}
+	case "deploy":
+		if len(args) != 2 {
+			_, err = s.ChannelMessageSend(m.ChannelID, "Use the syntax: `deploy <branch>`")
+			break
+		}
+		if !utils.ContainsInSlice(m.Member.Roles, utils.AdminRoleID) {
+			_, err = s.ChannelMessageSend(m.ChannelID, "You don't have permission to do that.")
+			break
+		}
+		_, err = s.ChannelMessageSend(m.ChannelID, "Deploying...")
+		if err != nil {
+			break
+		}
+
+		deployCommand := exec.Command("usw", "deploy", args[1])
+		var output []byte
+		output, err = deployCommand.Output()
+		if err != nil {
+			log.Println("Couldn't deploy:", err)
+			if err.Error() == "exit status 1" {
+				_, err = s.ChannelMessageSend(m.ChannelID, "Couldn't deploy, due to: \""+string(output)+"\"!")
+			} else {
+				_, err = s.ChannelMessageSend(m.ChannelID, "Couldn't deploy, due to: \""+err.Error()+"\"!")
+			}
+			break
+		}
+		_, err = s.ChannelMessageSend(m.ChannelID, "Successfully deployed the branch \""+args[1]+"\"!")
+	}
+	if err != nil {
+		log.Println(err)
 	}
 }
