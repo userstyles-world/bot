@@ -27,7 +27,7 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 	case "ping":
 		_, err = s.ChannelMessageSend(m.ChannelID, "Pong!")
 	case "help":
-		_, err = s.ChannelMessageSend(m.ChannelID, "`ping` - pings the bot\n`uptime` - shows bot uptime\n`help` - shows this message")
+		_, err = s.ChannelMessageSend(m.ChannelID, "`ping` - pings the bot\n`uptime` - shows bot uptime\n`deploy <branch>` deploy the server to that branch's current commit\n`help` - shows this message")
 	case "uptime":
 		uptime := time.Since(utils.LastUptime).Round(time.Second).String()
 		if utils.IsDown {
