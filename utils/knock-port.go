@@ -31,7 +31,7 @@ func getPID() (string, error) {
 		return "", ErrNoPIDFound
 	}
 	// remove the PID from the output
-	return string(PID[4 : len(PID)-1]), nil
+	return string(PID[4:]), nil
 }
 
 func Initalize() {
@@ -65,6 +65,7 @@ func Initalize() {
 			}
 			IsDown = pid == ""
 			if IsDown {
+				log.Println("Waiting for USw server to come back up.")
 				for {
 					if maybePID, _ := getPID(); maybePID != "" {
 						break
@@ -75,10 +76,13 @@ func Initalize() {
 				// Wait until the process is killed or exited.
 				// tail --pid=$pid -f /dev/null
 				command := exec.Command("tail", "--pid="+pid, "-f", "/dev/null")
-
-				if err := command.Run(); err != nil {
+				log.Printf("Waiting for process %s(USw server) to exit.\n", pid)
+				if err := command.Start(); err != nil {
 					log.Println(err)
-				}	
+				}
+				if err := command.Wait(); err != nil {
+					log.Println(err)
+				}
 			}
 		}
 	}()
