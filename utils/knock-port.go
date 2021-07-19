@@ -5,10 +5,8 @@ import (
 	"bot/modules/session"
 	"errors"
 	"log"
-	"os"
 	"os/exec"
 	"regexp"
-	"strconv"
 	"time"
 )
 
@@ -33,7 +31,7 @@ func getPID() (string, error) {
 		return "", ErrNoPIDFound
 	}
 	// remove the PID from the output
-	return string(PID[4:]), nil
+	return string(PID[4 : len(PID)-1]), nil
 }
 
 func Initalize() {
@@ -74,17 +72,13 @@ func Initalize() {
 					time.Sleep(time.Second)
 				}
 			} else {
-				processID, err := strconv.Atoi(pid)
-				if err != nil {
-					log.Println("couldn't convert PID", err)
-					return
-				}
-				process, err := os.FindProcess(processID)
-				if err != nil {
-					log.Println("couldn't find process", err)
-					return
-				}
-				process.Wait()
+				// Wait until the process is killed or exited.
+				// tail --pid=$pid -f /dev/null
+				command := exec.Command("tail", "--pid="+pid, "-f", "/dev/null")
+
+				if err := command.Run(); err != nil {
+					log.Println(err)
+				}	
 			}
 		}
 	}()
