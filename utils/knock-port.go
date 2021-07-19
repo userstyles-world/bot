@@ -33,7 +33,7 @@ func getPID() (string, error) {
 		return "", ErrNoPIDFound
 	}
 	// remove the PID from the output
-	return string(PID[4 : len(PID)-1]), nil
+	return string(PID[4:]), nil
 }
 
 func Initalize() {
