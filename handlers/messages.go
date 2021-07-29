@@ -50,17 +50,14 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			break
 		}
 
-		go func(sesssion *discordgo.Session, channeldID string) {
-			// Don't really mind the errors here not being "breaked", it's just a extra.
-			gifURL, errGo := gif.GetRandomGif("nervous")
-			if errGo != nil {
-				log.Println(errGo)
-			}
-			_, errGo = sesssion.ChannelMessageSend(channeldID, "I'm nervous REEE, "+gifURL)
-			if errGo != nil {
-				log.Println(errGo)
-			}
-		}(s, m.ChannelID)
+		gifURL, errGo := gif.GetRandomGif("nervous")
+		if errGo != nil {
+			log.Println(errGo)
+		}
+		_, errGo = s.ChannelMessageSend(m.ChannelID, "I'm nervous REEE, "+gifURL)
+		if errGo != nil {
+			log.Println(errGo)
+		}
 
 		deployCommand := exec.Command("usw", "deploy", args[1])
 		var output []byte
@@ -75,6 +72,16 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 			break
 		}
 		_, err = s.ChannelMessageSend(m.ChannelID, "Successfully deployed the branch \""+args[1]+"\"!")
+		if err != nil {
+			break
+		}
+
+		// Send a succesfull deploy gif.
+		gifURL, err = gif.GetRandomGif("success")
+		if err != nil {
+			break
+		}
+		_, err = s.ChannelMessageSend(m.ChannelID, "I'm happy REEE, "+gifURL)
 	}
 	if err != nil {
 		log.Println(err)
