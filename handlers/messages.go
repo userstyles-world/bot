@@ -9,6 +9,7 @@ import (
 
 	"github.com/bwmarrin/discordgo"
 
+	"bot/modules/gif"
 	"bot/utils"
 )
 
@@ -48,6 +49,18 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		if err != nil {
 			break
 		}
+
+		go func(sesssion *discordgo.Session, channeldID string) {
+			// Don't really mind the errors here not being "breaked", it's just a extra.
+			gifURL, errGo := gif.GetRandomGif("nervous")
+			if errGo != nil {
+				log.Println(errGo)
+			}
+			_, errGo = sesssion.ChannelMessageSend(channeldID, "I'm nervous REEE, "+gifURL)
+			if errGo != nil {
+				log.Println(errGo)
+			}
+		}(s, m.ChannelID)
 
 		deployCommand := exec.Command("usw", "deploy", args[1])
 		var output []byte
