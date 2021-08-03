@@ -60,15 +60,9 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 		deployCommand := exec.Command("usw", "deploy", args[1])
-		var output []byte
-		output, err = deployCommand.Output()
+		err = deployCommand.Start()
 		if err != nil {
 			log.Println("Couldn't deploy:", err)
-			if err.Error() == "exit status 1" {
-				_, err = s.ChannelMessageSend(m.ChannelID, "Couldn't deploy, due to: \""+string(output)+"\"!")
-			} else {
-				_, err = s.ChannelMessageSend(m.ChannelID, "Couldn't deploy, due to: \""+err.Error()+"\"!")
-			}
 			break
 		}
 		_, err = s.ChannelMessageSend(m.ChannelID, "Successfully deployed the branch \""+args[1]+"\"!")
