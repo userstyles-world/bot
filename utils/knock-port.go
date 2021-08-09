@@ -35,6 +35,16 @@ func getPID() (string, error) {
 }
 
 func Initalize() {
+	// Update bot status.
+	go func() {
+		for {
+			time.Sleep(5 * time.Second)
+			uptime := time.Since(LastUptime).Round(time.Second).String()
+			session.Discord.UpdateGameStatus(0, "USw's uptime is "+uptime)
+		}
+	}()
+
+	// Check server status.
 	go func() {
 		for {
 			pid, err := getPID()
