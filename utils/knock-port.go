@@ -4,9 +4,12 @@ import (
 	"bot/modules/config"
 	"bot/modules/session"
 	"errors"
+	"fmt"
 	"log"
 	"os/exec"
 	"regexp"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -34,13 +37,55 @@ func getPID() (string, error) {
 	return string(PID[4:]), nil
 }
 
+func getStartTime() (t time.Time, err error) {
+	pid, err := getPID()
+	if err != nil {
+		return t, err
+	}
+
+	// This command will return uptime in seconds for a given PID.
+	cmd := exec.Command("ps", "-p"+pid, "-o", "etimes", "--no-heading")
+	raw, err := cmd.Output()
+	if err != nil {
+		return t, err
+	}
+
+	// Convert uptime to string and trim space.
+	out := strings.TrimSpace(string(raw))
+
+	// Convert to int64 to use it with `time.Unix()`.
+	secs, err := strconv.ParseInt(out, 10, 64)
+	if err != nil {
+		return t, err
+	}
+
+	// Finally, calculate the start time.
+	epoch := time.Now().Unix() - secs
+	start := time.Unix(epoch, 0)
+
+	// Check if for whatever reason we got initial time.
+	if start.Equal(t) {
+		return t, fmt.Errorf("failed to convert time %v", start)
+	}
+	t = start
+
+	return t, nil
+}
+
 func Initalize() {
 	// Update bot status.
 	go func() {
 		for {
+			start, err := getStartTime()
+			if err != nil {
+				log.Println(err)
+				session.Discord.UpdateGameStatus(0, "USw is offline")
+			} else {
+				uptime := time.Since(start).Round(time.Second).String()
+				session.Discord.UpdateGameStatus(0, "USw has been running for "+uptime)
+			}
+
 			time.Sleep(5 * time.Second)
-			uptime := time.Since(LastUptime).Round(time.Second).String()
-			session.Discord.UpdateGameStatus(0, "USw's uptime is "+uptime)
 		}
 	}()
 
