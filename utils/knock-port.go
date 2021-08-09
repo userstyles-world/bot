@@ -79,10 +79,10 @@ func Initalize() {
 			start, err := getStartTime()
 			if err != nil {
 				log.Println(err)
-				session.Discord.UpdateGameStatus(0, "USw is offline")
+				session.Discord.UpdateGameStatus(0, "USw is offline 📉")
 			} else {
 				uptime := time.Since(start).Round(time.Second).String()
-				session.Discord.UpdateGameStatus(0, "USw has been running for "+uptime)
+				session.Discord.UpdateGameStatus(0, "for "+uptime+" 📈")
 			}
 
 			time.Sleep(5 * time.Second)
