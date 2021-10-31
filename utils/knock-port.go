@@ -105,7 +105,7 @@ func Initalize() {
 					AddField("💡 Duration", "Most of the time, this means the server is updating and should take a couple of minutes.")
 				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
 				video := "https://cdn.discordapp.com/attachments/821455365274075136/904434361829564416/server.webm"
-				session.Discord.ChannelMessage(AnnouncementsID, video)
+				session.Discord.ChannelMessageSend(AnnouncementsID, video)
 				LastUptime = time.Now()
 				IsDown = true
 			}
