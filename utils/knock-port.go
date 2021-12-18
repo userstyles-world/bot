@@ -72,75 +72,65 @@ func getStartTime() (t time.Time, err error) {
 	return t, nil
 }
 
+func serverDown() {
+	LastUptime = time.Now()
+
+	video := "https://cdn.discordapp.com/attachments/821455365274075136/904434361829564416/server.webm"
+	session.Discord.ChannelMessageSend(AnnouncementsID, video)
+
+	embedMessage := NewEmbed().
+		SetTitle("📜 Server Status").
+		SetColor(0xe74c3c).
+		AddField("📖 Current Status", "UserStyles.world is currently offline.").
+		AddField("❓ Help", "Please be patient, admins are looking into it.").
+		AddField("💡 Duration", "Most of the time, this means the server is updating and should take a couple of minutes.")
+	session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+}
+
+func serverUp() {
+	IsDown = false
+
+	embedMessage := NewEmbed().
+		SetTitle("📜 Server Status").
+		SetColor(0x2ecc71).
+		AddField("📖 Current Status", "UserStyles.world is currently back online!").
+		AddField("⏲️ Duration", "The server was out for: "+time.Since(LastUptime).Round(time.Second).String()).
+		AddField("💡 Note", "Thank you for being patient.").
+		AddField("🖥️ Website", "https://userstyles.world/")
+	session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+}
+
 func Initalize() {
 	// Update bot status.
 	go func() {
 		for {
 			start, err := getStartTime()
 			if err != nil {
+				IsDown = true
+
 				log.Println(err)
 				session.Discord.UpdateGameStatus(0, "USw is offline 📉")
 			} else {
+				IsDown = false
+
 				uptime := time.Since(start).Round(time.Second).String()
 				session.Discord.UpdateGameStatus(0, "for "+uptime+" 📈")
 			}
 
-			time.Sleep(5 * time.Second)
-		}
-	}()
-
-	// Check server status.
-	go func() {
-		for {
-			pid, err := getPID()
-			if err != nil {
-				log.Println(err)
-			}
-			if pid == "" && !IsDown {
-				embedMessage := NewEmbed().
-					SetTitle("📜 Server Status").
-					SetColor(0xe74c3c).
-					AddField("📖 Current Status", "UserStyles.world is currently offline.").
-					AddField("❓ Help", "Please be patient, admins are looking into it.").
-					AddField("💡 Duration", "Most of the time, this means the server is updating and should take a couple of minutes.")
-				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
-				video := "https://cdn.discordapp.com/attachments/821455365274075136/904434361829564416/server.webm"
-				session.Discord.ChannelMessageSend(AnnouncementsID, video)
-				LastUptime = time.Now()
-				IsDown = true
-			}
-			if pid != "" && IsDown {
-				embedMessage := NewEmbed().
-					SetTitle("📜 Server Status").
-					SetColor(0x2ecc71).
-					AddField("📖 Current Status", "UserStyles.world is currently back online!").
-					AddField("⏲️ Duration", "The server was out for: "+time.Since(LastUptime).Round(time.Second).String()).
-					AddField("💡 Note", "Thank you for being patient.").
-					AddField("🖥️ Website", "https://userstyles.world/")
-				session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
-				LastUptime = time.Now()
-			}
-			IsDown = pid == ""
 			if IsDown {
-				log.Println("Waiting for USw server to come back up.")
+				serverDown()
+
 				for {
-					if maybePID, _ := getPID(); maybePID != "" {
+					if _, err := getStartTime(); err == nil {
+						serverUp()
 						break
 					}
+
 					time.Sleep(time.Second)
 				}
-			} else {
-				// Wait until the process is killed or exited.
-				// tail --pid=$pid -f /dev/null
-				command := exec.Command("tail", "--pid="+pid, "-f", "/dev/null")
-				log.Printf("Waiting for process %s(USw server) to exit.\n", pid)
-				if err := command.Start(); err != nil {
-					log.Println(err)
-				}
-				if err := command.Wait(); err != nil {
-					log.Println(err)
-				}
 			}
+
+			time.Sleep(3 * time.Second)
 		}
 	}()
 }
