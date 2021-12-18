@@ -112,6 +112,7 @@ func Initalize() {
 				session.Discord.UpdateGameStatus(0, "USw is offline 📉")
 			} else {
 				IsDown = false
+				LastUptime = start
 
 				uptime := time.Since(start).Round(time.Second).String()
 				session.Discord.UpdateGameStatus(0, "for "+uptime+" 📈")
