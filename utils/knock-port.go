@@ -78,6 +78,7 @@ func serverDown() {
 	video := "https://cdn.discordapp.com/attachments/821455365274075136/904434361829564416/server.webm"
 	session.Discord.ChannelMessageSend(AnnouncementsID, video)
 
+	/*
 	embedMessage := NewEmbed().
 		SetTitle("📜 Server Status").
 		SetColor(0xe74c3c).
@@ -85,6 +86,7 @@ func serverDown() {
 		AddField("❓ Help", "Please be patient, admins are looking into it.").
 		AddField("💡 Duration", "Most of the time, this means the server is updating and should take a couple of minutes.")
 	session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+	*/
 }
 
 func serverUp() {
@@ -93,11 +95,11 @@ func serverUp() {
 	embedMessage := NewEmbed().
 		SetTitle("📜 Server Status").
 		SetColor(0x2ecc71).
-		AddField("📖 Current Status", "UserStyles.world is currently back online!").
+		AddField("📖 Current Status", "UserStyles.world is back online!").
 		AddField("⏲️ Duration", "The server was out for: "+time.Since(LastUptime).Round(time.Second).String()).
 		AddField("💡 Note", "Thank you for being patient.").
 		AddField("🖥️ Website", "https://userstyles.world/")
-	session.Discord.ChannelMessageSendEmbed(StatusChannelID, embedMessage.MessageEmbed)
+	session.Discord.ChannelMessageSendEmbed(AnnouncementsID, embedMessage.MessageEmbed)
 }
 
 func Initalize() {
