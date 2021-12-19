@@ -50,7 +50,7 @@ func OnMessage(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 
 	case "help":
-		_, err = s.ChannelMessageSend(m.ChannelID, "`ping` - pings the bot\n`uptime` - shows bot uptime\n`deploy <branch>` deploy the server to that branch's current commit\n`help` - shows this message")
+		_, err = s.ChannelMessageSend(m.ChannelID, "`ping` - pings the bot\n`uptime` - shows server uptime\n`deploy <branch>` - deploys changes from a specific branch\n`report <text>` - deletes the report message and forwards it to admins\n`help` - shows this message")
 
 	case "uptime":
 		uptime := time.Since(utils.LastUptime).Round(time.Second).String()
